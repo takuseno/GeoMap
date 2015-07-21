@@ -10,6 +10,7 @@ import java.util.List;
 
 import jp.gr.java_conf.androtaku.geomap.CountrySection;
 import jp.gr.java_conf.androtaku.geomap.GeoMapView;
+import jp.gr.java_conf.androtaku.geomap.OnInitializedListener;
 import jp.gr.java_conf.androtaku.geomap.SVGParser;
 
 
@@ -21,6 +22,14 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         Log.i("start", "start");
         GeoMapView geoMapView = (GeoMapView)findViewById(R.id.geoMap);
+        geoMapView.setOnInitializedListener(new OnInitializedListener() {
+            @Override
+            public void onInitialized(GeoMapView geoMapView) {
+                geoMapView.setCountryColor("US", "#00FF00");
+                geoMapView.setCountryColor("JP", "#FF0000");
+                geoMapView.refresh();
+            }
+        });
         Log.i("initialized", "initialized");
     }
 
