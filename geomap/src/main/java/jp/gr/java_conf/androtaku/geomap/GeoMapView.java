@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
@@ -23,22 +24,19 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
     private Paint defaultPaint;
     private Thread prepareThread, thread;
     private HashMap<String, Paint> countryPaints;
+    private int color = Color.rgb(255, 255, 255);
     private OnInitializedListener listener;
 
     public GeoMapView(Context context){
         super(context);
         this.context = context;
         getHolder().addCallback(this);
-        getHolder().setFormat(PixelFormat.TRANSLUCENT);
-        setZOrderOnTop(true);
         countryPaints = new HashMap<>();
     }
     public GeoMapView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
         this.context = context;
         getHolder().addCallback(this);
-        getHolder().setFormat(PixelFormat.TRANSLUCENT);
-        setZOrderOnTop(true);
         countryPaints = new HashMap<>();
     }
 
@@ -50,6 +48,10 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
         defaultPaint.setAntiAlias(true);
 
         final Handler handler = new Handler();
+
+        Canvas canvas = holder.lockCanvas();
+        canvas.drawColor(color);
+        holder.unlockCanvasAndPost(canvas);
 
         prepareThread = new Thread(new Runnable() {
             @Override
@@ -71,6 +73,7 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
     }
 
     private void drawMap(Canvas canvas){
+        canvas.drawColor(color);
         float ratio = 1.0f;
         if(SVGParser.xMax < canvas.getWidth()){
             ratio = (float)canvas.getWidth() / SVGParser.xMax;
@@ -139,6 +142,16 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
             }
         });
         thread.start();
+    }
+
+    public void setMapBackgroundColor(String color){
+        this.color = Color.parseColor(color);
+    }
+    public void setMapBackgroundColor(int red, int green, int blue){
+        this.color = Color.rgb(red, green, blue);
+    }
+    public void setMapBackgroundColor(int color){
+        this.color = color;
     }
 
     public void setOnInitializedListener(OnInitializedListener listener){
