@@ -16,3 +16,8 @@ geoMapView.setOnInitializedListener(new OnInitializedListener() {
     }
 });
 ```
+
+##Screenshot
+<p>
+    <img src="screenshots/screenshot.jpg" alt="day" width="270" height="480"/>
+</p>
