@@ -6,12 +6,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PixelFormat;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
     private List<CountrySection> countrySections;
     private Context context;
     private Paint defaultPaint;
-    private Thread prepareThread;
+    private Thread prepareThread, thread;
     private HashMap<String, Paint> countryPaints;
     private OnInitializedListener listener;
 
@@ -50,6 +49,8 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
         defaultPaint.setStyle(Paint.Style.STROKE);
         defaultPaint.setAntiAlias(true);
 
+        final Handler handler = new Handler();
+
         prepareThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -57,7 +58,13 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
                 Canvas canvas = holder.lockCanvas();
                 drawMap(canvas);
                 holder.unlockCanvasAndPost(canvas);
-                listener.onInitialized(GeoMapView.this);
+                //run on main thread
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onInitialized(GeoMapView.this);
+                    }
+                });
             }
         });
         prepareThread.start();
@@ -95,6 +102,7 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
     @Override
     public void surfaceDestroyed(SurfaceHolder holder){
         prepareThread = null;
+        thread = null;
     }
 
     @Override
@@ -122,7 +130,7 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
     }
 
     public void refresh(){
-        Thread thread = new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Canvas canvas = getHolder().lockCanvas();

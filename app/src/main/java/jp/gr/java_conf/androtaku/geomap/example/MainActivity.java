@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import java.util.List;
 
@@ -20,17 +22,19 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("start", "start");
+
+        final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
+
         GeoMapView geoMapView = (GeoMapView)findViewById(R.id.geoMap);
         geoMapView.setOnInitializedListener(new OnInitializedListener() {
             @Override
             public void onInitialized(GeoMapView geoMapView) {
+                progressBar.setVisibility(View.INVISIBLE);
                 geoMapView.setCountryColor("US", "#00FF00");
                 geoMapView.setCountryColor("JP", "#FF0000");
                 geoMapView.refresh();
             }
         });
-        Log.i("initialized", "initialized");
     }
 
     @Override
