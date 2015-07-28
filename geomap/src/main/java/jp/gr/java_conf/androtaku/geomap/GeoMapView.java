@@ -1,6 +1,7 @@
 package jp.gr.java_conf.androtaku.geomap;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,6 +12,7 @@ import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.ImageView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,30 +20,28 @@ import java.util.List;
 /**
  * Created by takuma on 2015/07/18.
  */
-public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
+public class GeoMapView extends ImageView{
     private List<CountrySection> countrySections;
     private Context context;
     private Paint defaultPaint;
     private Thread prepareThread, thread;
     private HashMap<String, Paint> countryPaints;
-    private int color = Color.rgb(255, 255, 255);
     private OnInitializedListener listener;
 
     public GeoMapView(Context context){
         super(context);
         this.context = context;
-        getHolder().addCallback(this);
         countryPaints = new HashMap<>();
+        initialize();
     }
     public GeoMapView(Context context, AttributeSet attributeSet){
         super(context, attributeSet);
         this.context = context;
-        getHolder().addCallback(this);
         countryPaints = new HashMap<>();
+        initialize();
     }
 
-    @Override
-    public void surfaceCreated(final SurfaceHolder holder){
+    private void initialize(){
         defaultPaint = new Paint();
         defaultPaint.setColor(Color.BLACK);
         defaultPaint.setStyle(Paint.Style.STROKE);
@@ -49,21 +49,19 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
 
         final Handler handler = new Handler();
 
-        Canvas canvas = holder.lockCanvas();
-        canvas.drawColor(color);
-        holder.unlockCanvasAndPost(canvas);
-
         prepareThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 countrySections = SVGParser.getCountrySections(context);
-                Canvas canvas = holder.lockCanvas();
+                final Bitmap bitmap = Bitmap.createBitmap(GeoMapView.this.getWidth(),
+                        GeoMapView.this.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
                 drawMap(canvas);
-                holder.unlockCanvasAndPost(canvas);
                 //run on main thread
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        GeoMapView.this.setImageBitmap(bitmap);
                         listener.onInitialized(GeoMapView.this);
                     }
                 });
@@ -73,9 +71,8 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
     }
 
     private void drawMap(Canvas canvas){
-        canvas.drawColor(color);
         float ratio = 1.0f;
-        if(SVGParser.xMax < canvas.getWidth()){
+        if(SVGParser.xMax > canvas.getWidth()){
             ratio = (float)canvas.getWidth() / SVGParser.xMax;
         }
         else{
@@ -91,7 +88,7 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
                 path.moveTo(xPathList.get(i).get(0) * ratio, yPathList.get(i).get(0) * ratio);
                 int numPoint = xPathList.get(i).size();
                 for (int j = 1; j < numPoint; ++j) {
-                    path.lineTo(xPathList.get(i).get(j), yPathList.get(i).get(j));
+                    path.lineTo(xPathList.get(i).get(j) * ratio, yPathList.get(i).get(j) * ratio);
                 }
                 Paint paint = countryPaints.get(countrySection.getCountryCode());
                 if(paint != null){
@@ -100,17 +97,6 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
                 canvas.drawPath(path, defaultPaint);
             }
         }
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder){
-        prepareThread = null;
-        thread = null;
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height){
-
     }
 
     public void setCountryColor(String countryCode, String color){
@@ -133,25 +119,28 @@ public class GeoMapView extends SurfaceView implements SurfaceHolder.Callback{
     }
 
     public void refresh(){
+        final Handler handler = new Handler();
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Canvas canvas = getHolder().lockCanvas();
+                final Bitmap bitmap = Bitmap.createBitmap(GeoMapView.this.getWidth(),
+                        GeoMapView.this.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bitmap);
                 drawMap(canvas);
-                getHolder().unlockCanvasAndPost(canvas);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        GeoMapView.this.setImageBitmap(bitmap);
+                    }
+                });
             }
         });
         thread.start();
     }
 
-    public void setMapBackgroundColor(String color){
-        this.color = Color.parseColor(color);
-    }
-    public void setMapBackgroundColor(int red, int green, int blue){
-        this.color = Color.rgb(red, green, blue);
-    }
-    public void setMapBackgroundColor(int color){
-        this.color = color;
+    public void destroy(){
+        prepareThread = null;
+        thread = null;
     }
 
     public void setOnInitializedListener(OnInitializedListener listener){
