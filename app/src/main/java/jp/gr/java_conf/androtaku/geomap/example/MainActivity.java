@@ -17,6 +17,7 @@ import jp.gr.java_conf.androtaku.geomap.SVGParser;
 
 
 public class MainActivity extends ActionBarActivity {
+    GeoMapView geoMapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +26,7 @@ public class MainActivity extends ActionBarActivity {
 
         final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
 
-        GeoMapView geoMapView = (GeoMapView)findViewById(R.id.geoMap);
+        geoMapView = (GeoMapView)findViewById(R.id.geoMap);
         geoMapView.setOnInitializedListener(new OnInitializedListener() {
             @Override
             public void onInitialized(GeoMapView geoMapView) {

@@ -24,7 +24,8 @@ public class GeoMapView extends ImageView{
     private List<CountrySection> countrySections;
     private Context context;
     private Paint defaultPaint;
-    private Thread prepareThread, thread;
+    private Thread prepareThread = null;
+    private Thread thread = null;
     private HashMap<String, Paint> countryPaints;
     private OnInitializedListener listener;
 
@@ -112,6 +113,10 @@ public class GeoMapView extends ImageView{
         countryPaints.remove(countryCode);
     }
 
+    public void clearCountryColor(){
+        countryPaints = new HashMap<>();
+    }
+
     public void refresh(){
         final Handler handler = new Handler();
         thread = new Thread(new Runnable() {
@@ -132,9 +137,16 @@ public class GeoMapView extends ImageView{
         thread.start();
     }
 
+
     public void destroy(){
-        prepareThread = null;
-        thread = null;
+        if(prepareThread != null) {
+            prepareThread.interrupt();
+            prepareThread = null;
+        }
+        if(thread != null) {
+            thread.interrupt();
+            thread = null;
+        }
     }
 
     public void setOnInitializedListener(OnInitializedListener listener){
