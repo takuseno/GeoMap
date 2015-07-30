@@ -71,13 +71,7 @@ public class GeoMapView extends ImageView{
     }
 
     private void drawMap(Canvas canvas){
-        float ratio = 1.0f;
-        if(SVGParser.xMax > canvas.getWidth()){
-            ratio = (float)canvas.getWidth() / SVGParser.xMax;
-        }
-        else{
-            ratio = SVGParser.xMax / (float)canvas.getWidth();
-        }
+        float ratio = (float)canvas.getWidth() / SVGParser.xMax;
 
         for(CountrySection countrySection : countrySections){
             List<List<Float>> xPathList = countrySection.getXPathList();
