@@ -6,12 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PixelFormat;
-import android.graphics.PorterDuff;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.widget.ImageView;
 
 import java.util.HashMap;
@@ -42,6 +38,9 @@ public class GeoMapView extends ImageView{
         initialize();
     }
 
+    /**
+     * initialize GeoMapView from world.svg on other thread
+     */
     private void initialize(){
         defaultPaint = new Paint();
         defaultPaint.setColor(Color.BLACK);
@@ -53,9 +52,13 @@ public class GeoMapView extends ImageView{
         prepareThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                //parse world.svg
                 countrySections = SVGParser.getCountrySections(context);
+
+                //create bitmap
                 final Bitmap bitmap = Bitmap.createBitmap(GeoMapView.this.getWidth(),
                         GeoMapView.this.getHeight(), Bitmap.Config.ARGB_8888);
+                //draw map on bitmap
                 Canvas canvas = new Canvas(bitmap);
                 drawMap(canvas);
                 //run on main thread
@@ -71,6 +74,10 @@ public class GeoMapView extends ImageView{
         prepareThread.start();
     }
 
+    /**
+     * draw map on canvas
+     * @param canvas target canvas
+     */
     private void drawMap(Canvas canvas){
         float ratio = (float)canvas.getWidth() / SVGParser.xMax;
 
@@ -94,6 +101,11 @@ public class GeoMapView extends ImageView{
         }
     }
 
+    /**
+     * set filling color
+     * @param countryCode target country code
+     * @param color filling color
+     */
     public void setCountryColor(String countryCode, String color){
         Paint paint = new Paint();
         paint.setColor(Color.parseColor(color));
@@ -101,6 +113,14 @@ public class GeoMapView extends ImageView{
         paint.setAntiAlias(true);
         countryPaints.put(countryCode, paint);
     }
+
+    /**
+     * set filling color
+     * @param countryCode target country code
+     * @param red 0 to 255
+     * @param green 0 to 255
+     * @param blue 0 to 255
+     */
     public void setCountryColor(String countryCode, int red, int green, int blue){
         Paint paint = new Paint();
         paint.setColor(Color.rgb(red, green, blue));
@@ -109,14 +129,25 @@ public class GeoMapView extends ImageView{
         countryPaints.put(countryCode, paint);
     }
 
+    /**
+     * remove filling color
+     * @param countryCode target country code
+     */
     public void removeCountryColor(String countryCode){
         countryPaints.remove(countryCode);
     }
 
+    /**
+     * clear all filling color
+     */
     public void clearCountryColor(){
         countryPaints = new HashMap<>();
     }
 
+    /**
+     * refresh GeoMapView
+     * you need call this method after initialized
+     */
     public void refresh(){
         final Handler handler = new Handler();
         thread = new Thread(new Runnable() {
@@ -137,7 +168,9 @@ public class GeoMapView extends ImageView{
         thread.start();
     }
 
-
+    /**
+     * stop all threads
+     */
     public void destroy(){
         if(prepareThread != null) {
             prepareThread.interrupt();
@@ -149,6 +182,10 @@ public class GeoMapView extends ImageView{
         }
     }
 
+    /**
+     * set OnInitializedListener
+     * @param listener
+     */
     public void setOnInitializedListener(OnInitializedListener listener){
         this.listener = listener;
     }
