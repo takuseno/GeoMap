@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by takuma on 2015/07/18.
  */
-public class GeoMapView extends ImageView{
+public class GeoMapView extends androidx.appcompat.widget.AppCompatImageView {
     private List<CountrySection> countrySections;
     private Context context;
     private Paint defaultPaint;
@@ -184,7 +184,7 @@ public class GeoMapView extends ImageView{
 
     /**
      * set OnInitializedListener
-     * @param listener
+     * @param listener OnInitializedListener
      */
     public void setOnInitializedListener(OnInitializedListener listener){
         this.listener = listener;
