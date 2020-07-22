@@ -66,7 +66,9 @@ public class GeoMapView extends androidx.appcompat.widget.AppCompatImageView {
                     @Override
                     public void run() {
                         GeoMapView.this.setImageBitmap(bitmap);
-                        listener.onInitialized(GeoMapView.this);
+
+                        if (listener != null)
+                            listener.onInitialized(GeoMapView.this);
                     }
                 });
             }
@@ -184,7 +186,7 @@ public class GeoMapView extends androidx.appcompat.widget.AppCompatImageView {
 
     /**
      * set OnInitializedListener
-     * @param listener OnInitializedListener
+     * @param listener Received from Activity
      */
     public void setOnInitializedListener(OnInitializedListener listener){
         this.listener = listener;
