@@ -1,22 +1,17 @@
 package jp.gr.java_conf.androtaku.geomap.example;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import java.util.List;
-
-import jp.gr.java_conf.androtaku.geomap.CountrySection;
+import androidx.appcompat.app.AppCompatActivity;
 import jp.gr.java_conf.androtaku.geomap.GeoMapView;
 import jp.gr.java_conf.androtaku.geomap.OnInitializedListener;
-import jp.gr.java_conf.androtaku.geomap.SVGParser;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
     GeoMapView geoMapView;
 
     @Override

@@ -8,15 +8,16 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Handler;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.core.content.ContextCompat;
+
 /**
  * Created by takuma on 2015/07/18.
  */
-public class GeoMapView extends ImageView{
+public class GeoMapView extends androidx.appcompat.widget.AppCompatImageView {
     private List<CountrySection> countrySections;
     private Context context;
     private Paint defaultPaint;
@@ -43,7 +44,7 @@ public class GeoMapView extends ImageView{
      */
     private void initialize(){
         defaultPaint = new Paint();
-        defaultPaint.setColor(Color.BLACK);
+        defaultPaint.setColor(ContextCompat.getColor(context, R.color.countryStroke));
         defaultPaint.setStyle(Paint.Style.STROKE);
         defaultPaint.setAntiAlias(true);
 
@@ -66,7 +67,9 @@ public class GeoMapView extends ImageView{
                     @Override
                     public void run() {
                         GeoMapView.this.setImageBitmap(bitmap);
-                        listener.onInitialized(GeoMapView.this);
+
+                        if (listener != null)
+                            listener.onInitialized(GeoMapView.this);
                     }
                 });
             }
@@ -184,7 +187,7 @@ public class GeoMapView extends ImageView{
 
     /**
      * set OnInitializedListener
-     * @param listener
+     * @param listener Received from Activity
      */
     public void setOnInitializedListener(OnInitializedListener listener){
         this.listener = listener;
